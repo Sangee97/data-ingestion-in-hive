@@ -1,0 +1,101 @@
+Steps to install Hive and Hdfs(hadoop distributed file system) :
+
+Installed VMware to have linux OS.
+Install java because hive requires java.
+Steps to install java:
+sudo apt update
+sudo apt install default-jdk
+java -version
+Installed hadoop:
+	
+
+Wget https://downloads.apache.org/common/hadoop-3.3.4/hadoop-3.3.4.tar.gz
+tar -xzvf hadoop-3.3.4.tar.gz
+sudo mv hadoop-3.3.4 /usr/local/hadoop
+
+Hadoop env-variables:
+Sudo vi.rc
+
+export HADOOP_HOME=/usr/local/hadoop
+export PATH=$PATH:$HADOOP_HOME/bin
+To save the source file:
+
+Source vi.rc
+
+To install hive:
+wget https://dlcdn.apache.org/hive/hive-3.1.3/apache-hive-3.1.3-bin.tar.gz
+tar -xzvf apache-hive-3.1.3-bin.tar.gz
+sudo mv apache-hive-3.1.3-bin /usr/local/hive
+
+Sudo vi.rc
+
+export HIVE_HOME=/usr/local/hive
+export PATH=$PATH:$HIVE_HOME/bin	
+
+sudo apt update
+sudo apt install mysql-server
+sudo mysql_secure_installation
+
+sudo systemctl start mysql
+sudo systemctl enable mysql
+
+mysql -u root -p
+
+
+
+
+CREATE DATABASE metastore;
+CREATE USER 'hiveuser'@'localhost' IDENTIFIED BY 'yourpassword';
+GRANT ALL PRIVILEGES ON metastore.* TO 'hiveuser'@'localhost';
+FLUSH PRIVILEGES;
+
+sudo vi $HIVE_HOME/conf/hive-site.xml
+
+<property>
+  <name>javax.jdo.option.ConnectionURL</name>
+  <value>jdbc:mysql://localhost/metastore</value>
+  <description>JDBC connect string for a JDBC metastore</description>
+</property>
+
+<property>
+  <name>javax.jdo.option.ConnectionDriverName</name>
+  <value>com.mysql.cj.jdbc.Driver</value>
+</property>
+
+<property>
+  <name>javax.jdo.option.ConnectionUserName</name>
+  <value>hiveuser</value>
+</property>
+
+<property>
+  <name>javax.jdo.option.ConnectionPassword</name>
+  <value>yourpassword</value>
+</property>
+
+schematool -dbType mysql -initSchema
+
+start-dfs.sh
+start-yarn.sh
+
+To make directory for hive data:
+
+hdfs dfs -mkdir /user/hive/warehouse
+hdfs dfs -chmod g+w /user/hive/warehouse
+
+
+To start hive:
+ 
+hdfs dfs -ls /user/session
+
+hdfs dfs -copyFromLocal /home/sangeetha/Downloads/age.csv /user/session
+
+hdfs dfs -cat /user/session/age.csv
+
+Hive
+
+CREATE EXTERNAL TABLE file_3 (a1 STRING,b1 STRING,c1 STRING,d1 STRING,e1 STRING, f1 STRING,g1 STRING,h1 STRING)
+    >     ROW FORMAT DELIMITED
+    >     FIELDS TERMINATED BY ','
+    >     STORED AS TEXTFILE
+    >     LOCATION'/home/sangeetha/Downloads/copy_file.csv';
+
